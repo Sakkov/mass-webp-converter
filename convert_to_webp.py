@@ -42,14 +42,20 @@ def convert_to_webp(input_dir, output_dir, quality, width):
 
             img = fix_orientation(img)  # Fix the image orientation if needed
 
-            original_width, original_height = img.size
+            if width != 0:
+                original_width, original_height = img.size
 
-            target_height = calculate_height(original_width, original_height, width)
+                target_width = width
 
-            img = img.resize((width, target_height))  # Resize the image to the desired size
+                target_height = calculate_height(original_width, original_height, target_width)
+
+                img = img.resize((width, target_height))  # Resize the image to the desired size
+            else:
+                target_width = img.size[0]
+                target_height = img.size[1]
 
             filename_without_ext = os.path.splitext(filename)[0]
-            output_filename = f"{filename_without_ext}_q{quality}_{width}x{target_height}.webp"
+            output_filename = f"{filename_without_ext}_q{quality}_{target_width}x{target_height}.webp"
             output_file = os.path.join(output_dir, output_filename)
             img.save(output_file, "webp", **config)
 
@@ -58,7 +64,7 @@ def main():
     parser.add_argument('-i', '--input', type=str, required=True, help='The input directory path')
     parser.add_argument('-o', '--output', type=str, required=True, help='The output directory path')
     parser.add_argument('-q', '--quality', type=int, default=80, help='The quality of the output image, default is 80')
-    parser.add_argument('-w', '--width', type=int, required=True, help='The desired output image width')
+    parser.add_argument('-w', '--width', type=int, required=True, help='The desired output image width, 0 for no resize')
 
     args = parser.parse_args()
 
